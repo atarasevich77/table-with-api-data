@@ -7,8 +7,16 @@ const TableCell = (props) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [isValidData, setIsValidData] = useState(data.length > 0);
 
-    const handleChange = (e) => {
-        setData(e.target.value)
+    const handleChange = (e, field) => {
+        if(data instanceof Object){
+            // Object.keys(data).map(key => {
+            //     if(key === field){
+            //         console.log(e.target.value)
+            //     }
+            // })
+        } else {
+            setData(e.target.value);
+        }
         setIsValidData(e.target.value.length > 0);
     }
 
@@ -36,7 +44,13 @@ const TableCell = (props) => {
             {
                 isEditMode ?
                     <>
-                        <input value={data} onChange={handleChange}/>
+                        {(data instanceof Object) ?
+                            Object.keys(data).map(key =>
+                                <input key={key} value={data[key]} onChange={(e) => handleChange(e, key)}/>
+                            )
+                            :
+                            <input value={data} onChange={(e) => handleChange(e, field)}/>
+                        }
                         <button onClick={onSaveData} disabled={!isValidData}>Update</button>
                         <button onClick={() => setIsEditMode(false)}>Close</button>
                     </>
