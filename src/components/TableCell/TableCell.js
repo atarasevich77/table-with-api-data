@@ -2,26 +2,32 @@ import React, {useState, useEffect, useRef} from 'react';
 
 const TableCell = (props) => {
     const field = props.dataCell.field;
+    const data = props.dataCell.data;
     const node = useRef(null);
-    const [data, setData] = useState(props.dataCell.data[field]);
+    const [dataValue, setDataValue] = useState(data[field]);
+    const [innerDataValue, setInnerDataValue] = useState('');
     const [isEditMode, setIsEditMode] = useState(false);
-    const [isValidData, setIsValidData] = useState(data.length > 0);
+    const [isValidData, setIsValidData] = useState(dataValue.length > 0);
 
-    const handleChange = (e, field) => {
-        if(data instanceof Object){
-            // Object.keys(data).map(key => {
-            //     if(key === field){
-            //         console.log(e.target.value)
-            //     }
-            // })
-        } else {
-            setData(e.target.value);
-        }
+    const handleChange = (e) => {
+        setDataValue(e.target.value);
         setIsValidData(e.target.value.length > 0);
     }
 
-    const onSaveData = (e) => {
+    const handleChangeMultipleFields = (e, field) => {
+        setInnerDataValue(e.target.value);
+        console.log(innerDataValue)
+        // setIsValidData(e.target.value.length > 0);
+    }
+
+    const onSaveData = () => {
+        data[field] = dataValue;
         props.saveData(data);
+        setIsEditMode(false);
+    }
+
+    const onClose = () => {
+        setDataValue(data[field]);
         setIsEditMode(false);
     }
 
@@ -31,50 +37,57 @@ const TableCell = (props) => {
             return;
         }
         // outside click
-        setIsEditMode(false);
+        onClose();
     };
 
     useEffect(() => {
         document.addEventListener('mousedown', handleClick);
         return () => document.removeEventListener('mousedown', handleClick);
-    }, []);
+    }, [data]);
 
     return (
         <div ref={el => node.current = el}>
             {
                 isEditMode ?
                     <>
-                        {(data instanceof Object) ?
-                            Object.keys(data).map(key =>
-                                <input key={key} value={data[key]} onChange={(e) => handleChange(e, key)}/>
-                            )
+                        {(dataValue instanceof Object) ?
+                            field === 'company' &&
+                            <>
+                                <input value={dataValue['name']} onChange={(e) => handleChangeMultipleFields(e, 'name')}/>
+                                <input value={dataValue['catchPhrase']} onChange={(e) => handleChangeMultipleFields(e, 'catchPhrase')}/>
+                                <input value={dataValue['bs']} onChange={(e) => handleChangeMultipleFields(e, 'bs')}/>
+                            </>
+
+                            // Object.keys(dataValue).map((key, idx) =>
+                            //     <input key={idx} value={dataValue[key]} onChange={(e) => handleChangeMultipleFields(e, key)}/>
+                            // )
                             :
-                            <input value={data} onChange={(e) => handleChange(e, field)}/>
+                            <input value={dataValue} onChange={handleChange}/>
                         }
                         <button onClick={onSaveData} disabled={!isValidData}>Update</button>
-                        <button onClick={() => setIsEditMode(false)}>Close</button>
+                        <button onClick={onClose}>Close</button>
                     </>
                     :
                     <div onDoubleClick={() => setIsEditMode(true)}>
                         {
                             (field === "id" || field === "name" || field === "username" || field === "email" || field === "phone") &&
-                            data
+                            dataValue
                         }
                         {
                             (field === "website") &&
-                            <a href={'http://' + data} target="_blank">{data}</a>
+                            <a href={'http://' + dataValue} target="_blank">{dataValue}</a>
                         }
                         {
                             (field === "company") &&
-                            data['name'] + ' ' + data['catchPhrase'] + ' ' + data['bs']
+                            dataValue['name'] + ' ' + dataValue['catchPhrase'] + ' ' + dataValue['bs']
                         }
                         {
                             (field === "address") &&
-                                data['street'] + ' '
-                                + data['suite'] + ', '
-                                + data['city'] + ' '
-                                + data['zipcode'] + ' '
-                                + 'Geo: ' + data['geo']['lat']  + ' ' + data['geo']['lng']
+                                dataValue['street'] + ' '
+                                + dataValue['suite'] + ', '
+                                + dataValue['city'] + ' '
+                                + dataValue['zipcode'] + ' '
+                                + 'Geo: ' + dataValue['geo']['lat']  + ' ' + dataValue['geo']['lng']
                         }
                     </div>
             }

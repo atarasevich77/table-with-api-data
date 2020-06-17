@@ -76,7 +76,7 @@ function App() {
             setIsLoadingData(true);
             getData();
         }
-    }, [data]);
+    }, []);
 
     return (
         <div className="container-fluid">
