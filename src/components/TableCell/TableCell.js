@@ -5,7 +5,9 @@ const TableCell = (props) => {
     const data = props.dataCell.data;
     const node = useRef(null);
     const [dataValue, setDataValue] = useState(data[field]);
+
     const [innerDataValue, setInnerDataValue] = useState('');
+
     const [isEditMode, setIsEditMode] = useState(false);
     const [isValidData, setIsValidData] = useState(dataValue.length > 0);
 
@@ -15,6 +17,7 @@ const TableCell = (props) => {
     }
 
     const handleChangeMultipleFields = (e, field) => {
+        //TODO: need fixK
         setInnerDataValue(e.target.value);
         console.log(innerDataValue)
         // setIsValidData(e.target.value.length > 0);
@@ -51,16 +54,11 @@ const TableCell = (props) => {
                 isEditMode ?
                     <>
                         {(dataValue instanceof Object) ?
-                            field === 'company' &&
-                            <>
-                                <input value={dataValue['name']} onChange={(e) => handleChangeMultipleFields(e, 'name')}/>
-                                <input value={dataValue['catchPhrase']} onChange={(e) => handleChangeMultipleFields(e, 'catchPhrase')}/>
-                                <input value={dataValue['bs']} onChange={(e) => handleChangeMultipleFields(e, 'bs')}/>
-                            </>
-
-                            // Object.keys(dataValue).map((key, idx) =>
-                            //     <input key={idx} value={dataValue[key]} onChange={(e) => handleChangeMultipleFields(e, key)}/>
-                            // )
+                            Object.keys(dataValue).map((key, idx) =>
+                                    <input key={idx} value={dataValue[key]} onChange={
+                                        (e) => handleChangeMultipleFields(e, key)
+                                    }/>
+                                 )
                             :
                             <input value={dataValue} onChange={handleChange}/>
                         }
